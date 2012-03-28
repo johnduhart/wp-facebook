@@ -206,8 +206,8 @@ class WpFacebook {
 		}
 
 		if ( !isset( $image ) ) {
-			// TODO: Default image
-			$image = '';
+			// TODO: Get a better default image
+			$image = 'http://wmkscopedotcom.files.wordpress.com/2011/11/logo-just-kscope-resized.png';
 		}
 
 		$meta = array_merge( array(
