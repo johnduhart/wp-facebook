@@ -278,7 +278,7 @@ class WpFacebook {
 					<a id="fb-profile-link" href="#" fb-id="<?php echo $id ?>"></a>
 					( <a href="#" id="fb-disconnect-link">Disconnect</a> )
 				<?php else: ?>
-				<fb:login-button scope="email,publish_stream" show-faces="false">Connect this WordPress account to Facebook</fb:login-button>
+				<fb:login-button scope="email,publish_actions" show-faces="false">Connect this WordPress account to Facebook</fb:login-button>
 				<?php endif; ?>
 			</p></td>
 		</tr>
@@ -405,7 +405,7 @@ JAVASCRIPT;
 
 		$params = array(
 			'access_token' => $data->token,
-			'article' => wp_get_shortlink( $post->ID ),
+			'article' => get_permalink( $post->ID ),
 		);
 
 		$response = wp_remote_post(
