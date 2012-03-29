@@ -21,6 +21,8 @@ class WpFacebook {
 		add_filter( 'personal_options', array( __CLASS__, 'profilePageConnect' ) );
 		add_filter( 'wp_ajax_facebook_login', array( __CLASS__, 'profilePageLoginAjax' ) );
 		add_filter( 'wp_ajax_facebook_disconnect', array( __CLASS__, 'profilePageDisconnectAjax' ) );
+
+		add_action( 'transition_post_status', array( __CLASS__, 'onPostStatusTransition' ), 10, 3 );
 	}
 
 	/**
@@ -30,7 +32,7 @@ class WpFacebook {
 	 * @return string
 	 */
 	public static function langAtrributes( $lang ) {
-		return ' xmlns:fb="http://ogp.me/ns/fb#" xmlns:og="http://ogp.me/ns#" '.$lang;
+		return ' xmlns:fb="http://ogp.me/ns/fb#" xmlns:og="http://ogp.me/ns#" ' . $lang;
 	}
 
 	/**
@@ -226,6 +228,22 @@ class WpFacebook {
 		}
 	}
 
+	/**
+	 * Returns a facebook data object
+	 *
+	 * @param $userId
+	 * @return WpFacebookData|null
+	 */
+	public function getUserFacebookData( $userId ) {
+		$data = get_user_meta( $userId, 'facebook', true );
+
+		if ( $data instanceof WpFacebookData ) {
+			return $data;
+		}
+
+		return null;
+	}
+
 	/*
 	 * Login stuff
 	 */
@@ -359,6 +377,41 @@ jQuery( '#fb-disconnect-link' ).click( function () {
 } );
 JAVASCRIPT;
 
+	}
+
+	/*
+	 * Publishing
+	 */
+
+	/**
+	 * Makes the post to the user's timeline
+	 *
+	 * @param $new
+	 * @param $old
+	 * @param $post
+	 * @return mixed
+	 */
+	public function onPostStatusTransition( $new, $old, $post ) {
+		if ( $new != 'publish' || $old == 'publish' ) {
+			return;
+		}
+
+		$data = self::getUserFacebookData( $post->post_author );
+
+		if ( $data === null ) {
+			// No user data. ugh.
+			return;
+		}
+
+		$params = array(
+			'access_token' => $data->token,
+			'article' => wp_get_shortlink( $post->ID ),
+		);
+
+		$response = wp_remote_post(
+			'https://graph.facebook.com/' . $data->userId . '/wmkscope:write',
+			array( 'body' => $params )
+		);
 	}
 }
 
