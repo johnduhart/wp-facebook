@@ -396,7 +396,26 @@ JAVASCRIPT;
 			return;
 		}
 
-		$data = self::getUserFacebookData( $post->post_author );
+		// Cycle for each user
+		if ( function_exists( 'get_coauthors' ) ) {
+			foreach ( get_coauthors( $post->ID ) as $user ) {
+				self::publishWriteAction( $user->ID, $post->ID );
+			}
+		} else {
+			self::publishWriteAction( $post->post_author, $post->ID );
+		}
+	}
+
+	/**
+	 * Publish a wmkscope:write action
+	 *
+	 * @param $userId
+	 * @param $postId
+	 * @return mixed
+	 */
+	private function publishWriteAction( $userId, $postId ) {
+
+		$data = self::getUserFacebookData( $userId );
 
 		if ( $data === null ) {
 			// No user data. ugh.
@@ -405,10 +424,10 @@ JAVASCRIPT;
 
 		$params = array(
 			'access_token' => $data->token,
-			'article' => get_permalink( $post->ID ),
+			'article' => get_permalink( $postId ),
 		);
 
-		$response = wp_remote_post(
+		wp_remote_post(
 			'https://graph.facebook.com/' . $data->userId . '/wmkscope:write',
 			array( 'body' => $params )
 		);
