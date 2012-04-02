@@ -258,7 +258,7 @@ class WpFacebook {
 		$data = get_user_meta( $user->ID, 'facebook', true );
 
 		// Check to see if we already have tokens
-		if ( $data instanceof WpFacebookData ) {
+		if ( $data instanceof WpFacebookData || ( defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE ) ) {
 			self::footerInitRegister( 'profilePageFooter' );
 		} else {
 			self::footerInitRegister( 'profilePageLoginFooter' );
