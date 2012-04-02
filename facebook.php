@@ -270,16 +270,18 @@ class WpFacebook {
 			<th><label>Facebook Connect</label></th>
 
 			<td><p>
-				<?php if ( $data instanceof WpFacebookData ):
+				<?php if ( $data instanceof WpFacebookData ) {
 					$id = $data->userId;
 				?>
 					<img id="fb-profile-pic" src="https://graph.facebook.com/<?php echo $id ?>/picture?type=square" />
 					Connected as
 					<a id="fb-profile-link" href="#" fb-id="<?php echo $id ?>"></a>
 					( <a href="#" id="fb-disconnect-link">Disconnect</a> )
-				<?php else: ?>
+				<?php } elseif ( defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE ) { ?>
 				<fb:login-button scope="email,publish_actions" show-faces="false">Connect this WordPress account to Facebook</fb:login-button>
-				<?php endif; ?>
+				<?php } else { ?>
+				Account Not connected
+				<?php } ?>
 			</p></td>
 		</tr>
 		<?php
